@@ -21,10 +21,9 @@ $config = [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
-        // 'user' => [
-        //     'identityClass' => 'app\models\User',
-        //     'enableAutoLogin' => true,
-        // ],
+        'user' => [
+            'identityClass' => 'dektrium\user\models\User',
+        ],
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
@@ -51,19 +50,32 @@ $config = [
             'rules' => [
             ],
         ],
-        'view' => [
-            'theme' => [
-                'pathMap' => [
-                   '@app/views' => '@vendor/dmstr/yii2-adminlte-asset/example-views/yiisoft/yii2-app'
-                ],
-            ],
-        ],
     ],
     'params' => $params,
     'modules' => [
         'user' => [
-            'class' => 'dektrium\user\Module'
+            'class' => 'dektrium\user\Module',
+            'enableUnconfirmedLogin' => true,
+            'confirmWithin' => 21600,
+            'cost' => 12,
+            'admins' => ['admin']
         ],
+    ],
+    'as beforeRequest' => [
+        'class' => 'yii\filters\AccessControl',
+        'rules' => [
+            [
+                'allow' => true,
+                'actions' => ['login'],
+            ],
+            [
+                'allow' => true,
+                'roles' => ['@'],
+            ],
+        ],
+        'denyCallback' => function () {
+            return Yii::$app->response->redirect(['user/login']);
+        },
     ],
 ];
 
